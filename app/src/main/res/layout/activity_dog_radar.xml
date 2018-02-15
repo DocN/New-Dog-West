@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.drnserver.newdogwest.DogRadar">
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/dogavatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/radarAvatar"
+            app:srcCompat="@drawable/dog2"
+            tools:layout_editor_absoluteX="64dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <ImageView
+            android:id="@+id/radarAvatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignBottom="@+id/textView3"
+            android:layout_alignParentEnd="true"
+            app:srcCompat="@drawable/radar2"
+            tools:layout_editor_absoluteX="64dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="Dog Park Radar"
+            android:textSize="40dp"
+            android:textStyle="bold" />
+        <android.support.v7.widget.CardView
+            android:layout_marginTop="75dp"
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cardView3">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_below="@+id/textView"
+                android:layout_toStartOf="@+id/textView">
+
+                <TextView
+                    android:id="@+id/titleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:textSize="20dp"
+                    android:text="Dog Parks Near: "/>
+
+                <EditText
+                    android:id="@+id/addressText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/titleText"
+                    android:layout_marginTop="9dp"
+                    android:layout_toEndOf="@+id/imageView3"
+                    android:ems="15"
+                    android:inputType="textPersonName"
+                    android:text="511, Royal Ave, New Westminister, B.C." />
+
+                <ImageView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/imageView3"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignTop="@+id/addressText"
+                    app:srcCompat="@drawable/map" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/cardView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cardView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="109dp">
+
+        </android.support.v7.widget.CardView>
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="400dp"
+            android:layout_height="300dp"
+            android:layout_below="@+id/cardView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="64dp"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/googlemaps" />
+
+
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

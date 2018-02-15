@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">NewDogWest</string>
+    <string name="title_activity_park_search">ParkSearch</string>
+    <string name="title_activity_park_details">parkDetails</string>
+    <string name="google_android_map_api_key">AIzaSyBEwR1tzZZgBqRdeJYLBiIG9ZtH5PGmObI</string>
+    <string name="radar">Radar</string>
+</resources>

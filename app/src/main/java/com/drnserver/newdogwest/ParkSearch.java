@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.drnserver.newdogwest.Models.ParkProperties;
 
 public class ParkSearch extends AppCompatActivity {
     private ArrayList<Parks> parkList = new ArrayList<>();
@@ -36,8 +37,8 @@ public class ParkSearch extends AppCompatActivity {
     private ProgressDialog pDialog;
     private ListView lv;
     private String TAG = ParkSearch.class.getSimpleName();
-    private ArrayList<HashMap<String, String>> contactList;
-
+    //New west data parsing
+    private ArrayList<ParkProperties> parkDataList;
     // URL to get contacts JSON
 
     //private static String url = "http://opendata.newwestcity.ca/downloads/parks/PARKS.json";
@@ -49,7 +50,10 @@ public class ParkSearch extends AppCompatActivity {
         setContentView(R.layout.activity_park_search);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        mAdapter = new ParkAdapter(parkList);
+        //new west data array
+        parkDataList = new ArrayList<ParkProperties>();
+
+        mAdapter = new ParkAdapter(parkDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -69,7 +73,6 @@ public class ParkSearch extends AppCompatActivity {
                 // ...
             }
         }));
-        contactList = new ArrayList<>();
         new GetContacts().execute();
     }
 
@@ -157,8 +160,28 @@ public class ParkSearch extends AppCompatActivity {
 
                     // looping through All Contacts
                     for (int i = 0; i < features.length(); i++) {
+                        ParkProperties currentPark = new ParkProperties();
                         JSONObject c = features.getJSONObject(i);
-                        System.out.println(c.get("properties.StrName"));
+                        JSONObject property = c.getJSONObject("properties");
+                        /*
+                        JSONArray coordinates = c.getJSONObject("geometry").getJSONArray("coordinates");
+                        System.out.println(coordinates);
+                        JSONArray coordinatesValue = coordinates.getJSONArray(0);
+                        System.out.println(coordinatesValue.getString(0));
+                        //System.out.println(coordinatesValue);
+                        */
+                        currentPark.setStrName(property.getString("StrName"));
+                        currentPark.setStrNum(property.getString("StrNum"));
+                        currentPark.setParkName(property.getString("Name"));
+                        currentPark.setCategory(property.getString("Category"));
+                        currentPark.setNeighbourhood(property.getString("Neighbourhood"));
+                        currentPark.setZone_category(property.getString("Zone_Category"));
+                        currentPark.setSurveyed(property.getString("Surveyed"));
+                        currentPark.setSiteArea(property.getString("Site_Area"));
+                        currentPark.setLat(property.getString("StrName"));
+                        currentPark.setLon(property.getString("StrName"));
+
+                        parkDataList.add(currentPark);
                         /*
                         String id = c.getString("id");
                         String name = c.getString("name");

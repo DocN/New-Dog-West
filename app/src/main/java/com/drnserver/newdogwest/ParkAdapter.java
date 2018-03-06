@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.drnserver.newdogwest.Models.ParkProperties;
+
 import java.util.List;
 
 public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> {
 
-    private List<Parks> moviesList;
+    private List<ParkProperties> moviesList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView title, year, genre;
@@ -23,7 +25,7 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
     }
 
 
-    public ParkAdapter(List<Parks> moviesList) {
+    public ParkAdapter(List<ParkProperties> moviesList) {
         this.moviesList = moviesList;
     }
 
@@ -37,9 +39,9 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Parks park = moviesList.get(position);
-        holder.title.setText(park.getTitle());
-        holder.genre.setText(park.getLocation());
+        ParkProperties park = moviesList.get(position);
+        holder.title.setText(park.getParkName());
+        holder.genre.setText(park.getStrName());
         holder.year.setText(park.getDistance());
     }
 

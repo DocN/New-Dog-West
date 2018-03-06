@@ -29,5 +29,5 @@
         <activity android:name=".ParkDetails" />
         <activity android:name=".DogRadar"></activity>
     </application>
-
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

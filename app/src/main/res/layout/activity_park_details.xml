@@ -10,7 +10,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/pDetailTitleView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="30dp"
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView2"
+            android:layout_below="@+id/pDetailTitleView"
             android:id="@+id/cardView">
 
             <ImageView
@@ -46,12 +46,14 @@
             android:text="Address: " />
 
         <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
+            android:id="@+id/pDetailAddressText"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/dAddressText"
             android:layout_alignBottom="@+id/dAddressText"
-            android:layout_alignStart="@+id/textView2"
+            android:layout_alignParentEnd="true"
+            android:ellipsize="none"
+            android:scrollHorizontally="false"
             android:text="3rd Ave, New Westminster,           BC V3M 1V2"
             android:textSize="20dp" />
 
@@ -61,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/dAddressText"
-            android:layout_below="@+id/textView4"
+            android:layout_below="@+id/pDetailAddressText"
             android:layout_marginTop="23dp"
             android:text="Hours: "
             android:textStyle="bold"/>

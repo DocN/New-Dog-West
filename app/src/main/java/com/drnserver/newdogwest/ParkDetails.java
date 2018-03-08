@@ -6,15 +6,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.drnserver.newdogwest.Services.ParkDataService;
 
 public class ParkDetails extends AppCompatActivity {
+
+    private TextView titleTextView;
+    private TextView pDetailAddressText;
+    private int parkDataIndex;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_park_details);
+        Intent thisIntent = getIntent();
+        Bundle b = thisIntent.getExtras();
+        if(b != null) {
+            parkDataIndex = (int) b.get("position");
+        }
+        this.initItems();
     }
 
+    private void initItems() {
+        //init view items
+        titleTextView = findViewById(R.id.pDetailTitleView);
+        titleTextView.setText(ParkDataService.parkDataList.get(parkDataIndex).getParkName());
+        pDetailAddressText = findViewById(R.id.pDetailAddressText);
+        pDetailAddressText.setText(ParkDataService.parkDataList.get(parkDataIndex).getStrNum() + " " + ParkDataService.parkDataList.get(parkDataIndex).getStrName());
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

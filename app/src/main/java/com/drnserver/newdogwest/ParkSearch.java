@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import com.drnserver.newdogwest.Models.ParkProperties;
+import com.drnserver.newdogwest.Services.ParkDataService;
 
 public class ParkSearch extends AppCompatActivity {
     private ArrayList<Parks> parkList = new ArrayList<>();
@@ -37,8 +38,8 @@ public class ParkSearch extends AppCompatActivity {
     private ProgressDialog pDialog;
     private ListView lv;
     private String TAG = ParkSearch.class.getSimpleName();
-    //New west data parsing
-    private ArrayList<ParkProperties> parkDataList;
+
+
     // URL to get contacts JSON
 
     //private static String url = "http://opendata.newwestcity.ca/downloads/parks/PARKS.json";
@@ -49,11 +50,11 @@ public class ParkSearch extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_park_search);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
+        ParkDataService pDataServ = new ParkDataService();
+        ParkDataService.parkDataList = new ArrayList<ParkProperties>();
         //new west data array
-        parkDataList = new ArrayList<ParkProperties>();
 
-        mAdapter = new ParkAdapter(parkDataList);
+        mAdapter = new ParkAdapter(ParkDataService.parkDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -65,6 +66,8 @@ public class ParkSearch extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 Intent myIntent = new Intent(ParkSearch.this, ParkDetails.class);
+                //store index of item.
+                myIntent.putExtra("position", position);
                 ParkSearch.this.startActivity(myIntent);
             }
 
@@ -180,8 +183,9 @@ public class ParkSearch extends AppCompatActivity {
                         currentPark.setSiteArea(property.getString("Site_Area"));
                         currentPark.setLat(property.getString("StrName"));
                         currentPark.setLon(property.getString("StrName"));
+                        currentPark.setIndex(i);
+                        ParkDataService.parkDataList.add(currentPark);
 
-                        parkDataList.add(currentPark);
                         /*
                         String id = c.getString("id");
                         String name = c.getString("name");

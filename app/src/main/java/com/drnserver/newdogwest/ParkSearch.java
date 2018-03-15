@@ -1,6 +1,7 @@
 package com.drnserver.newdogwest;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -39,7 +40,8 @@ public class ParkSearch extends AppCompatActivity {
     private ProgressDialog pDialog;
     private ListView lv;
     private String TAG = ParkSearch.class.getSimpleName();
-
+    private int type;
+    private boolean first;
 
     // URL to get contacts JSON
 
@@ -52,10 +54,11 @@ public class ParkSearch extends AppCompatActivity {
         setContentView(R.layout.activity_park_search);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         PlacesDataService pDataServ = new PlacesDataService();
-        PlacesDataService.parkDataList = new ArrayList<PlaceProperties>();
+        PlacesDataService.PlaceDataList = new ArrayList<PlaceProperties>();
         //new west data array
+        first = true;
 
-        mAdapter = new ParkAdapter(PlacesDataService.parkDataList);
+        mAdapter = new ParkAdapter(PlacesDataService.PlaceDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -75,14 +78,23 @@ public class ParkSearch extends AppCompatActivity {
                 // ...
             }
         }));
+        //spinner for choice selection
         chooseList = findViewById(R.id.spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, choices);
         chooseList.setAdapter(adapter);
+
         chooseList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String selected = chooseList.getItemAtPosition(position).toString();
-                System.out.println(selected);
+                type = position;
+                PlacesDataService.selected = selected;
+                if(first == true) {
+                    first = false;
+                }
+                else {
+                    new getParks().execute();
+                }
             }
 
             @Override
@@ -91,6 +103,7 @@ public class ParkSearch extends AppCompatActivity {
             }
 
         });
+        type = 0;
         new getParks().execute();
     }
 
@@ -126,11 +139,11 @@ public class ParkSearch extends AppCompatActivity {
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
-
         }
 
         @Override
         protected Void doInBackground(Void... arg0) {
+            PlacesDataService.PlaceDataList.clear();
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
@@ -195,25 +208,29 @@ public class ParkSearch extends AppCompatActivity {
                         contactList.add(contact);
                         */
                     }
-
-                    YelpData test = new YelpData();
-                    String term = "parks";
+                    YelpData yelper = new YelpData();
+                    String term = choices[type];
                     String lat = "49.21386827563567";
                     String longi = "-122.9276924813239";
-                    test.businessSearch("parks",lat, longi, "50", "Parks");
-                    for(int i =0; i<test.getBusinesses().size(); i++) {
-                        Business currentBusiness = test.getBusinesses().get(i);
+                    //private String[] choices = new String[]{"Pet Parks", "Pet Stores", "Pet Clinic", "Pet Care", "Pet Groom", "Pet Training", "Pet Food"};
+                    if(term.equals("Pet Parks")) {
+                        yelper.businessSearch("parks", lat, longi, "50", "Parks");
+                    }else {
+                        yelper.businessSearch(term, lat, longi, "50", "");
+                    }
+
+                    for(int i =0; i<yelper.getBusinesses().size(); i++) {
+                        Business currentBusiness = yelper.getBusinesses().get(i);
                         PlaceProperties currentPlace = new PlaceProperties();
                         currentPlace.setIndex(i);
                         currentPlace.setBusiness(currentBusiness);
                         currentPlace.setParkName(currentBusiness.getName());
                         currentPlace.setImgUrl(currentBusiness.getImageUrl());
-
-
+                        currentPlace.setType(term);
                         currentPlace.setDistance(round2(currentBusiness.getDistance()/1000));
                         currentPlace.setAddress(addressFilter(currentBusiness) + "\n" + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
                         System.out.println(currentPlace.getAddress() + " " + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
-                        PlacesDataService.parkDataList.add(currentPlace);
+                        PlacesDataService.PlaceDataList.add(currentPlace);
                     }
                     PlacesDataService.sortParkData();
                 } catch (final JSONException e) {
@@ -276,6 +293,7 @@ public class ParkSearch extends AppCompatActivity {
             super.onPostExecute(result);
             // Dismiss the progress dialog
             if (pDialog.isShowing())
+                mAdapter.notifyDataSetChanged();
                 pDialog.dismiss();
             /**
              * Updating parsed JSON data into ListView

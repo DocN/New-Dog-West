@@ -36,13 +36,13 @@ public class ParkDetails extends AppCompatActivity {
     private void initItems() {
         //init view items
         titleTextView = findViewById(R.id.pDetailTitleView);
-        titleTextView.setText(PlacesDataService.parkDataList.get(parkDataIndex).getParkName());
+        titleTextView.setText(PlacesDataService.PlaceDataList.get(parkDataIndex).getParkName());
         pDetailAddressText = findViewById(R.id.pDetailAddressText);
-        pDetailAddressText.setText(PlacesDataService.parkDataList.get(parkDataIndex).getAddress());
+        pDetailAddressText.setText(PlacesDataService.PlaceDataList.get(parkDataIndex).getAddress());
         Context context = this;
         stockImage = findViewById(R.id.stock);
         try {
-            Picasso.with(context).load(PlacesDataService.parkDataList.get(parkDataIndex).getImgUrl()).into(stockImage);
+            Picasso.with(context).load(PlacesDataService.PlaceDataList.get(parkDataIndex).getImgUrl()).into(stockImage);
         } catch(RuntimeException e) {
 
         }

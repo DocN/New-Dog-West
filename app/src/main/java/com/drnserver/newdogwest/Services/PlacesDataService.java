@@ -10,23 +10,24 @@ import java.util.ArrayList;
 
 public class PlacesDataService {
     //New west data parsing
-    public static ArrayList<PlaceProperties> parkDataList;
+    public static ArrayList<PlaceProperties> PlaceDataList;
+    public static String selected;
 
     public static void sortParkData() {
         ArrayList<PlaceProperties> temp = new ArrayList<PlaceProperties>();
-        while(parkDataList.size() > 0) {
+        while(PlaceDataList.size() > 0) {
             int minIndex = 0;
-            for(int i = 0; i< parkDataList.size(); i++) {
-                PlaceProperties current = parkDataList.get(i);
-                if(current.getDistance() < parkDataList.get(minIndex).getDistance()) {
+            for(int i = 0; i< PlaceDataList.size(); i++) {
+                PlaceProperties current = PlaceDataList.get(i);
+                if(current.getDistance() < PlaceDataList.get(minIndex).getDistance()) {
                     minIndex = i;
                 }
             }
-            temp.add(parkDataList.get(minIndex));
-            parkDataList.remove(minIndex);
+            temp.add(PlaceDataList.get(minIndex));
+            PlaceDataList.remove(minIndex);
         }
         for(int i=0; i< temp.size(); i++) {
-            parkDataList.add(temp.get(i));
+            PlaceDataList.add(temp.get(i));
         }
     }
 }

@@ -25,11 +25,10 @@ public class PlaceProperties {
     private double distance;
     private String imgUrl;
     private String address;
-
     //type of place
     private String type;
     private int index;
-    Business business;
+    private Business business;
 
     /*constructor */
     public PlaceProperties() {
@@ -48,7 +47,6 @@ public class PlaceProperties {
     public double getDistance() {
         return distance;
     }
-
 
     public void setDistance(double distance) {
         this.distance = distance;

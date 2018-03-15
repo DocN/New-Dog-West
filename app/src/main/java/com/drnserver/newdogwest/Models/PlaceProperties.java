@@ -22,8 +22,9 @@ public class PlaceProperties {
     private String siteArea;
     private String lat;
     private String lon;
-    private String distance;
+    private double distance;
     private String imgUrl;
+    private String address;
 
     //type of place
     private String type;
@@ -32,7 +33,7 @@ public class PlaceProperties {
 
     /*constructor */
     public PlaceProperties() {
-        this.distance = "50km";
+        this.distance = 50;
     }
 
     public int getIndex() {
@@ -44,12 +45,12 @@ public class PlaceProperties {
     }
 
 
-    public String getDistance() {
+    public double getDistance() {
         return distance;
     }
 
 
-    public void setDistance(String distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
     public String getStrName() {
@@ -163,4 +164,13 @@ public class PlaceProperties {
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }

@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -23,14 +26,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.drnserver.newdogwest.Models.PlaceProperties;
-import com.drnserver.newdogwest.Services.ParkDataService;
+import com.drnserver.newdogwest.Services.PlacesDataService;
 import com.drnserver.newdogwest.Services.YelpData;
-import com.yelp.fusion.client.models.Business;
+import com.yelp.fusion.client.models.*;
 
 public class ParkSearch extends AppCompatActivity {
     private ArrayList<Parks> parkList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ParkAdapter mAdapter;
+    private Spinner chooseList;
+    private String[] choices = new String[]{"Pet Parks", "Pet Stores", "Pet Clinic", "Pet Care", "Pet Groom", "Pet Training", "Pet Food"};
     private ProgressDialog pDialog;
     private ListView lv;
     private String TAG = ParkSearch.class.getSimpleName();
@@ -46,17 +51,15 @@ public class ParkSearch extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_park_search);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        ParkDataService pDataServ = new ParkDataService();
-        ParkDataService.parkDataList = new ArrayList<PlaceProperties>();
+        PlacesDataService pDataServ = new PlacesDataService();
+        PlacesDataService.parkDataList = new ArrayList<PlaceProperties>();
         //new west data array
 
-        mAdapter = new ParkAdapter(ParkDataService.parkDataList);
+        mAdapter = new ParkAdapter(PlacesDataService.parkDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-
-        //prepareMovieData();
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -72,6 +75,22 @@ public class ParkSearch extends AppCompatActivity {
                 // ...
             }
         }));
+        chooseList = findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, choices);
+        chooseList.setAdapter(adapter);
+        chooseList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selected = chooseList.getItemAtPosition(position).toString();
+                System.out.println(selected);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
         new getParks().execute();
     }
 
@@ -93,37 +112,6 @@ public class ParkSearch extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
-    private void prepareMovieData() {
-        Parks park = new Parks("Queen's Park", "3rd Ave, New Westminster, BC V3M 1V2", "50km");
-        parkList.add(park);
-
-        park = new Parks("Westminster Pier Park", "1 Sixth St, New Westminster, BC V3M 6Z6", "20.8km");
-        parkList.add(park);
-        park = new Parks("Queen's Park", "3rd Ave, New Westminster, BC V3M 1V2", "50km");
-        parkList.add(park);
-
-        park = new Parks("Westminster Pier Park", "1 Sixth St, New Westminster, BC V3M 6Z6", "20.8km");
-        parkList.add(park);
-        park = new Parks("Queen's Park", "3rd Ave, New Westminster, BC V3M 1V2", "50km");
-        parkList.add(park);
-
-        park = new Parks("Westminster Pier Park", "1 Sixth St, New Westminster, BC V3M 6Z6", "20.8km");
-        parkList.add(park);
-        park = new Parks("Queen's Park", "3rd Ave, New Westminster, BC V3M 1V2", "50km");
-        parkList.add(park);
-
-        park = new Parks("Westminster Pier Park", "1 Sixth St, New Westminster, BC V3M 6Z6", "20.8km");
-        parkList.add(park);
-        park = new Parks("Queen's Park", "3rd Ave, New Westminster, BC V3M 1V2", "50km");
-        parkList.add(park);
-
-        park = new Parks("Westminster Pier Park", "1 Sixth St, New Westminster, BC V3M 6Z6", "20.8km");
-        parkList.add(park);
-        mAdapter.notifyDataSetChanged();
-    }
-
 
     /**
      * Async task class to get json by making HTTP call
@@ -209,19 +197,25 @@ public class ParkSearch extends AppCompatActivity {
                     }
 
                     YelpData test = new YelpData();
-                    test.businessSearch("pet store","49.21386827563567", "-122.9276924813239", "50");
+                    String term = "parks";
+                    String lat = "49.21386827563567";
+                    String longi = "-122.9276924813239";
+                    test.businessSearch("parks",lat, longi, "50", "Parks");
                     for(int i =0; i<test.getBusinesses().size(); i++) {
-                        Business curentBusiness = test.getBusinesses().get(i);
+                        Business currentBusiness = test.getBusinesses().get(i);
                         PlaceProperties currentPlace = new PlaceProperties();
                         currentPlace.setIndex(i);
-                        currentPlace.setBusiness(curentBusiness);
-                        currentPlace.setParkName(curentBusiness.getName());
-                        currentPlace.setImgUrl(curentBusiness.getImageUrl());
-                        currentPlace.setDistance(Math.round((curentBusiness.getDistance()/1000)) + " km");
-                        ParkDataService.parkDataList.add(currentPlace);
+                        currentPlace.setBusiness(currentBusiness);
+                        currentPlace.setParkName(currentBusiness.getName());
+                        currentPlace.setImgUrl(currentBusiness.getImageUrl());
+
+
+                        currentPlace.setDistance(round2(currentBusiness.getDistance()/1000));
+                        currentPlace.setAddress(addressFilter(currentBusiness) + "\n" + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
+                        System.out.println(currentPlace.getAddress() + " " + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
+                        PlacesDataService.parkDataList.add(currentPlace);
                     }
-
-
+                    PlacesDataService.sortParkData();
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
                     runOnUiThread(new Runnable() {
@@ -251,7 +245,32 @@ public class ParkSearch extends AppCompatActivity {
 
             return null;
         }
+        protected double round2(double val) {
+            val = val*100;
+            val = Math.round(val);
+            val = val /100;
+            return val;
+        }
+        protected String addressFilter(Business currentBusiness) {
+            String address = "";
+            if(currentBusiness.getLocation().getAddress1() == null) {
+                if(currentBusiness.getLocation().getAddress2() == null) {
+                    if(currentBusiness.getLocation().getAddress3() == null) {
 
+                    }
+                    else {
+                        address = currentBusiness.getLocation().getAddress3();
+                    }
+                }
+                else {
+                    address = currentBusiness.getLocation().getAddress2();
+                }
+            }
+            else {
+                address = currentBusiness.getLocation().getAddress1();
+            }
+            return address;
+        }
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);

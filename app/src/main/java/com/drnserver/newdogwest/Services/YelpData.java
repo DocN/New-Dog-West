@@ -40,7 +40,7 @@ public class YelpData {
         this.businesses = businesses;
     }
 
-    public void businessSearch(String term, String lat, String longi, String limit) {
+    public void businessSearch(String term, String lat, String longi, String limit, String category) {
         Map<String, String> params = new HashMap<>();
         // general params
         //-122.9276924813239, 49.21386827563567
@@ -48,6 +48,7 @@ public class YelpData {
         params.put("latitude", lat);
         params.put("longitude", longi);
         params.put("limit", limit);
+        params.put("categories", category);
         Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
         try {
             Response<SearchResponse> response = call.execute();

@@ -15,6 +15,7 @@ import com.drnserver.newdogwest.Models.PlaceProperties;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import javax.security.auth.callback.Callback;
@@ -53,23 +54,12 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         PlaceProperties park = moviesList.get(position);
-        //holder.title.setText(park.getParkName());
-        if(park.getBusiness() != null) {
-            System.out.println("herebitch");
-            holder.title.setText(park.getBusiness().getName());
-            String distance = park.getDistance() + "";
-            holder.year.setText(distance);
+        holder.title.setText(park.getParkName());
+        holder.genre.setText(park.getStrName());
+        holder.year.setText(park.getDistance() + "km");
+        if(park.getImgUrl().length() > 0) {
+            Picasso.with(holder.itemView.getContext()).load(park.getImgUrl()).resize(100, 100).into(holder.avatar);
         }
-        else {
-            holder.title.setText(park.getParkName());
-            holder.genre.setText(park.getStrName());
-            holder.year.setText(park.getDistance());
-            if(park.getImgUrl().length() > 0) {
-                Picasso.with(holder.itemView.getContext()).load(park.getImgUrl()).resize(100, 100).into(holder.avatar);
-            }
-
-        }
-
     }
 
     @Override

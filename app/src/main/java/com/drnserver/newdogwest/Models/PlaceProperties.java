@@ -1,10 +1,16 @@
 package com.drnserver.newdogwest.Models;
 
+import com.yelp.fusion.client.connection.YelpFusionApi;
+import com.yelp.fusion.client.connection.YelpFusionApiFactory;
+import com.yelp.fusion.client.models.*;
+
+import java.util.ArrayList;
+
 /**
  * Created by DrN on 3/5/2018.
  */
 
-public class ParkProperties {
+public class PlaceProperties {
     private String strName;
     private String strNum;
     private String parkName;
@@ -17,10 +23,15 @@ public class ParkProperties {
     private String lat;
     private String lon;
     private String distance;
+    private String imgUrl;
+
+    //type of place
+    private String type;
     private int index;
+    Business business;
 
     /*constructor */
-    public ParkProperties() {
+    public PlaceProperties() {
         this.distance = "50km";
     }
 
@@ -129,5 +140,27 @@ public class ParkProperties {
         this.lon = lon;
     }
 
+    public String getType() {
+        return type;
+    }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business businesses) {
+        this.business = business;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }

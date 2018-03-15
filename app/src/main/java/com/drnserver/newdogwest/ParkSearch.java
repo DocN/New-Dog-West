@@ -14,22 +14,18 @@ import android.view.View;
 import java.util.ArrayList;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import com.drnserver.newdogwest.Models.ParkProperties;
+import com.drnserver.newdogwest.Models.PlaceProperties;
 import com.drnserver.newdogwest.Services.ParkDataService;
+import com.drnserver.newdogwest.Services.YelpData;
+import com.yelp.fusion.client.models.Business;
 
 public class ParkSearch extends AppCompatActivity {
     private ArrayList<Parks> parkList = new ArrayList<>();
@@ -51,7 +47,7 @@ public class ParkSearch extends AppCompatActivity {
         setContentView(R.layout.activity_park_search);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         ParkDataService pDataServ = new ParkDataService();
-        ParkDataService.parkDataList = new ArrayList<ParkProperties>();
+        ParkDataService.parkDataList = new ArrayList<PlaceProperties>();
         //new west data array
 
         mAdapter = new ParkAdapter(ParkDataService.parkDataList);
@@ -60,7 +56,7 @@ public class ParkSearch extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        prepareMovieData();
+        //prepareMovieData();
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -76,7 +72,7 @@ public class ParkSearch extends AppCompatActivity {
                 // ...
             }
         }));
-        new GetContacts().execute();
+        new getParks().execute();
     }
 
     @Override
@@ -132,7 +128,7 @@ public class ParkSearch extends AppCompatActivity {
     /**
      * Async task class to get json by making HTTP call
      */
-    private class GetContacts extends AsyncTask<Void, Void, Void> {
+    private class getParks extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -163,7 +159,7 @@ public class ParkSearch extends AppCompatActivity {
 
                     // looping through All Contacts
                     for (int i = 0; i < features.length(); i++) {
-                        ParkProperties currentPark = new ParkProperties();
+                        PlaceProperties currentPark = new PlaceProperties();
                         JSONObject c = features.getJSONObject(i);
                         JSONObject property = c.getJSONObject("properties");
                         /*
@@ -184,8 +180,7 @@ public class ParkSearch extends AppCompatActivity {
                         currentPark.setLat(property.getString("StrName"));
                         currentPark.setLon(property.getString("StrName"));
                         currentPark.setIndex(i);
-                        ParkDataService.parkDataList.add(currentPark);
-
+                        //-122.9276924813239, 49.21386827563567
                         /*
                         String id = c.getString("id");
                         String name = c.getString("name");
@@ -212,6 +207,21 @@ public class ParkSearch extends AppCompatActivity {
                         contactList.add(contact);
                         */
                     }
+
+                    YelpData test = new YelpData();
+                    test.businessSearch("pet store","49.21386827563567", "-122.9276924813239", "50");
+                    for(int i =0; i<test.getBusinesses().size(); i++) {
+                        Business curentBusiness = test.getBusinesses().get(i);
+                        PlaceProperties currentPlace = new PlaceProperties();
+                        currentPlace.setIndex(i);
+                        currentPlace.setBusiness(curentBusiness);
+                        currentPlace.setParkName(curentBusiness.getName());
+                        currentPlace.setImgUrl(curentBusiness.getImageUrl());
+                        currentPlace.setDistance(Math.round((curentBusiness.getDistance()/1000)) + " km");
+                        ParkDataService.parkDataList.add(currentPlace);
+                    }
+
+
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
                     runOnUiThread(new Runnable() {

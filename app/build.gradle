@@ -18,6 +18,10 @@ android {
     }
 }
 
+repositories {
+    jcenter()
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -33,4 +37,10 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
 
     compile 'com.google.android.gms:play-services-maps:9.0.1'
+
+    //for yelp
+    compile 'io.github.ranga543:yelp-fusion-client:0.1.4'
+
+    //for image load
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

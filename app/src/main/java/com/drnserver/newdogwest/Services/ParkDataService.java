@@ -1,6 +1,6 @@
 package com.drnserver.newdogwest.Services;
 
-import com.drnserver.newdogwest.Models.ParkProperties;
+import com.drnserver.newdogwest.Models.PlaceProperties;
 
 import java.util.ArrayList;
 
@@ -10,5 +10,5 @@ import java.util.ArrayList;
 
 public class ParkDataService {
     //New west data parsing
-    public static ArrayList<ParkProperties> parkDataList;
+    public static ArrayList<PlaceProperties> parkDataList;
 }

@@ -1,31 +1,44 @@
 package com.drnserver.newdogwest;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-import com.drnserver.newdogwest.Models.ParkProperties;
+import com.drnserver.newdogwest.Models.PlaceProperties;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.security.auth.callback.Callback;
 
 public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> {
 
-    private List<ParkProperties> moviesList;
+    private List<PlaceProperties> moviesList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView title, year, genre;
+        public ImageView avatar;
 
         public MyViewHolder(View view) {
             super(view);
+
             title = (TextView) view.findViewById(R.id.title);
             genre = (TextView) view.findViewById(R.id.genre);
             year = (TextView) view.findViewById(R.id.year);
+            avatar = (ImageView) view.findViewById(R.id.dogeAvatar);
         }
     }
 
 
-    public ParkAdapter(List<ParkProperties> moviesList) {
+    public ParkAdapter(List<PlaceProperties> moviesList) {
         this.moviesList = moviesList;
     }
 
@@ -39,10 +52,24 @@ public class ParkAdapter extends RecyclerView.Adapter<ParkAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        ParkProperties park = moviesList.get(position);
-        holder.title.setText(park.getParkName());
-        holder.genre.setText(park.getStrName());
-        holder.year.setText(park.getDistance());
+        PlaceProperties park = moviesList.get(position);
+        //holder.title.setText(park.getParkName());
+        if(park.getBusiness() != null) {
+            System.out.println("herebitch");
+            holder.title.setText(park.getBusiness().getName());
+            String distance = park.getDistance() + "";
+            holder.year.setText(distance);
+        }
+        else {
+            holder.title.setText(park.getParkName());
+            holder.genre.setText(park.getStrName());
+            holder.year.setText(park.getDistance());
+            if(park.getImgUrl().length() > 0) {
+                Picasso.with(holder.itemView.getContext()).load(park.getImgUrl()).resize(100, 100).into(holder.avatar);
+            }
+
+        }
+
     }
 
     @Override

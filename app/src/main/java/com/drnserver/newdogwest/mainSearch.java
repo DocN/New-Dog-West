@@ -1,12 +1,20 @@
 package com.drnserver.newdogwest;
 
 import android.content.Intent;
+import android.location.Location;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import com.google.android.gms.common.api.GoogleApiClient;
 
-public class mainSearch extends AppCompatActivity {
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.widget.TextView;
+
+public class mainSearch extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

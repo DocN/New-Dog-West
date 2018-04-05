@@ -229,6 +229,8 @@ public class ParkSearch extends AppCompatActivity {
                         currentPlace.setType(term);
                         currentPlace.setDistance(round2(currentBusiness.getDistance()/1000));
                         currentPlace.setAddress(addressFilter(currentBusiness) + "\n" + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
+                        currentPlace.setLat(currentBusiness.getCoordinates().getLatitude() + "");
+                        currentPlace.setLon(currentBusiness.getCoordinates().getLongitude() + "");
                         System.out.println(currentPlace.getAddress() + " " + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
                         PlacesDataService.PlaceDataList.add(currentPlace);
                     }

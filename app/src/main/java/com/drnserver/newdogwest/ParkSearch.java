@@ -228,7 +228,11 @@ public class ParkSearch extends AppCompatActivity {
                         currentPlace.setImgUrl(currentBusiness.getImageUrl());
                         currentPlace.setType(term);
                         currentPlace.setDistance(round2(currentBusiness.getDistance()/1000));
-                        currentPlace.setAddress(addressFilter(currentBusiness) + "\n" + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
+                        String address = addressFilter(currentBusiness);
+                        if(!address.equals("")) {
+                            address = address + "\n";
+                        }
+                        currentPlace.setAddress(address + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
                         currentPlace.setLat(currentBusiness.getCoordinates().getLatitude() + "");
                         currentPlace.setLon(currentBusiness.getCoordinates().getLongitude() + "");
                         System.out.println(currentPlace.getAddress() + " " + currentBusiness.getLocation().getCity() + ", " + currentBusiness.getLocation().getState() + " " + currentBusiness.getLocation().getZipCode());
@@ -272,9 +276,10 @@ public class ParkSearch extends AppCompatActivity {
         }
         protected String addressFilter(Business currentBusiness) {
             String address = "";
-            if(currentBusiness.getLocation().getAddress1() == null) {
-                if(currentBusiness.getLocation().getAddress2() == null) {
-                    if(currentBusiness.getLocation().getAddress3() == null) {
+
+            if(currentBusiness.getLocation().getAddress1() == null || currentBusiness.getLocation().getAddress1().equals("")) {
+                if(currentBusiness.getLocation().getAddress2() == null || currentBusiness.getLocation().getAddress2().equals("")) {
+                    if(currentBusiness.getLocation().getAddress3() == null || currentBusiness.getLocation().getAddress3().equals("")) {
 
                     }
                     else {

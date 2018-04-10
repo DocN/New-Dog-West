@@ -33,7 +33,8 @@
             android:layout_alignStart="@+id/imageView2"
             app:srcCompat="@drawable/dog" />
 
-        <EditText
+
+        <AutoCompleteTextView
             android:id="@+id/location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,7 +44,10 @@
             android:ems="13"
             android:inputType="textPersonName"
             android:text="My Location"
-            android:textAlignment="center" />
+            android:hint="Enter Address, City or Zip Code"
+            android:textAlignment="center"
+            android:dropDownVerticalOffset="360dp"
+            android:imeOptions="actionSearch" />
 
         <ImageView
             android:id="@+id/imageView2"

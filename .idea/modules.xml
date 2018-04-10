@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://C:\dev\newdog\NewWest.iml" filepath="C:\dev\newdog\NewWest.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\dev\newdog\app\app.iml" filepath="C:\dev\newdog\app\app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/newdog.iml" filepath="$PROJECT_DIR$/newdog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/newdogwestmeme.iml" filepath="$PROJECT_DIR$/newdogwestmeme.iml" />
     </modules>
   </component>
 </project>

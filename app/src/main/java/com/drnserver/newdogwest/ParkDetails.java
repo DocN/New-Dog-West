@@ -59,14 +59,13 @@ public class ParkDetails extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_park_details);
+        getLocationPermission();
         Intent thisIntent = getIntent();
         Bundle b = thisIntent.getExtras();
         if(b != null) {
             parkDataIndex = (int) b.get("position");
         }
-        getLocationPermission();
         this.initItems();
-        System.out.println("fuck you" + PlacesDataService.PlaceDataList.get(parkDataIndex).getLat());
         double lat = Double.parseDouble(PlacesDataService.PlaceDataList.get(parkDataIndex).getLat());
         double lon = Double.parseDouble(PlacesDataService.PlaceDataList.get(parkDataIndex).getLon());
         locationCord = new LatLng(lat, lon);
@@ -91,7 +90,7 @@ public class ParkDetails extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        System.out.println("here frag");
         if (mLocationPermissionsGranted) {
             getDeviceLocation();
 
@@ -103,7 +102,6 @@ public class ParkDetails extends AppCompatActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.addMarker(new MarkerOptions().position(locationCord).title(PlacesDataService.PlaceDataList.get(parkDataIndex).getParkName()));
-
         }
     }
 
@@ -163,7 +161,7 @@ public class ParkDetails extends AppCompatActivity implements OnMapReadyCallback
 
     private void initMap(){
         Log.d(TAG, "initMap: initializing map");
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
 
         mapFragment.getMapAsync(ParkDetails.this);
     }

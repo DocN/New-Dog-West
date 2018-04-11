@@ -16,12 +16,19 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
 import com.drnserver.newdogwest.Adapter.PlaceAutocompleteAdapter;
+import com.drnserver.newdogwest.Services.UserLocationService;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -40,10 +47,17 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
     private AutoCompleteTextView locationEdit;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private GoogleApiClient mGoogleApiClient;
+
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
             new LatLng(-40, -168), new LatLng(71, 136));
     private static final String TAG = "mainSearch";
     private int duration = Toast.LENGTH_SHORT;
+    private static UserLocationService myLocation = new UserLocationService();
+
+    private GoogleMap mMap;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private LatLng locationCord;
+    private Location currentLocation;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -66,10 +80,11 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
         mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient,
                 LAT_LNG_BOUNDS, null);
         locationEdit.setAdapter(mPlaceAutocompleteAdapter);
-
+        getDeviceLocation();
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                geoLocate();
                 Intent myIntent = new Intent(mainSearch.this, ParkSearch.class);
                 mainSearch.this.startActivity(myIntent);
             }
@@ -90,15 +105,15 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
                 return false;
             }
         });
-
-
-
     }
+
     private void geoLocate(){
         Log.d(TAG, "geoLocate: geolocating");
-        System.out.println("fucking eh lmao");
         String searchString = locationEdit.getText().toString();
-
+        if(searchString.equals("My Location")) {
+            UserLocationService.setCurrentLat(currentLocation.getLatitude());
+            UserLocationService.setCurrentLon(currentLocation.getLongitude());
+        }
         Geocoder geocoder = new Geocoder(mainSearch.this);
         List<Address> list = new ArrayList<>();
         try{
@@ -108,10 +123,41 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
         }
         if(list.size() > 0){
             Address address = list.get(0);
-
+            if(address.getAddressLine(0).equals("Malaysia")) {
+                UserLocationService.setDisplayAddress("My Location");
+                return;
+            }
+            UserLocationService.setCurrentLat(address.getLatitude());
+            UserLocationService.setCurrentLon(address.getLongitude());
+            UserLocationService.setDisplayAddress(locationEdit.getText().toString());
             Log.d(TAG, "geoLocate: found a location: " + address.toString());
             //Toast.makeText(this, address.toString(), Toast.LENGTH_SHORT).show();
 
         }
     }
+
+    private void getDeviceLocation(){
+        Log.d(TAG, "getDeviceLocation: getting the devices current location");
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try{
+            final Task location = mFusedLocationProviderClient.getLastLocation();
+            location.addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if(task.isSuccessful()){
+                        Log.d(TAG, "onComplete: found location!");
+                        currentLocation = (Location) task.getResult();
+                    }else{
+                        Log.d(TAG, "onComplete: current location is null");
+                        Toast.makeText(mainSearch.this, "unable to get current location", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }catch (SecurityException e){
+            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
+        }
+    }
+
 }

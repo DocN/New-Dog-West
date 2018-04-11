@@ -1,37 +1,62 @@
 package com.drnserver.newdogwest;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.drnserver.newdogwest.Adapter.PlaceAutocompleteAdapter;
 import com.drnserver.newdogwest.Models.PlaceProperties;
 import com.drnserver.newdogwest.Services.PlacesDataService;
+import com.drnserver.newdogwest.Services.UserLocationService;
 import com.drnserver.newdogwest.Services.YelpData;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.yelp.fusion.client.models.*;
 
-public class ParkSearch extends AppCompatActivity {
+public class ParkSearch extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private ArrayList<Parks> parkList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ParkAdapter mAdapter;
@@ -42,11 +67,21 @@ public class ParkSearch extends AppCompatActivity {
     private String TAG = ParkSearch.class.getSimpleName();
     private int type;
     private boolean first;
-
+    private AutoCompleteTextView addressText;
+    private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
+    private GoogleApiClient mGoogleApiClient;
+    private TextView titleText;
+    private GoogleMap mMap;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private LatLng locationCord;
+    private Location currentLocation;
+    private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
+            new LatLng(-40, -168), new LatLng(71, 136));
     // URL to get contacts JSON
 
     //private static String url = "http://opendata.newwestcity.ca/downloads/parks/PARKS.json";
     private static String url = "http://opendata.newwestcity.ca/downloads/parks/PARKS.json";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +90,40 @@ public class ParkSearch extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         PlacesDataService pDataServ = new PlacesDataService();
         PlacesDataService.PlaceDataList = new ArrayList<PlaceProperties>();
+        addressText = (AutoCompleteTextView)findViewById(R.id.addressText);
+        addressText.setText(UserLocationService.getDisplayAddress());
+        addressText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
+                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
+                    Context context = getApplicationContext();
+                    //execute our method for searching
+                    geoLocate();
+                    new getParks().execute();
+                }
+
+                return false;
+            }
+        });
+
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
+        mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient,
+                LAT_LNG_BOUNDS, null);
+        addressText.setAdapter(mPlaceAutocompleteAdapter);
+        titleText = (TextView)findViewById(R.id.titleText);
         //new west data array
         first = true;
 
+        getDeviceLocation();
         mAdapter = new ParkAdapter(PlacesDataService.PlaceDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -108,6 +174,40 @@ public class ParkSearch extends AppCompatActivity {
     }
 
     @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void geoLocate(){
+        Log.d(TAG, "geoLocate: geolocating");
+        String searchString = addressText.getText().toString();
+        if(searchString.equals("My Location")) {
+            UserLocationService.setCurrentLat(currentLocation.getLatitude());
+            UserLocationService.setCurrentLon(currentLocation.getLongitude());
+        }
+        Geocoder geocoder = new Geocoder(ParkSearch.this);
+        List<Address> list = new ArrayList<>();
+        try{
+            list = geocoder.getFromLocationName(searchString, 1);
+        }catch (IOException e){
+            Log.e(TAG, "geoLocate: IOException: " + e.getMessage() );
+        }
+        if(list.size() > 0){
+            Address address = list.get(0);
+            if(address.getAddressLine(0).equals("Malaysia")) {
+                UserLocationService.setDisplayAddress("My Location");
+                return;
+            }
+            UserLocationService.setCurrentLat(address.getLatitude());
+            UserLocationService.setCurrentLon(address.getLongitude());
+            UserLocationService.setDisplayAddress(addressText.getText().toString());
+            Log.d(TAG, "geoLocate: found a location: " + address.toString());
+            //Toast.makeText(this, address.toString(), Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
@@ -125,7 +225,29 @@ public class ParkSearch extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    private void getDeviceLocation(){
+        Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try{
+            final Task location = mFusedLocationProviderClient.getLastLocation();
+            location.addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if(task.isSuccessful()){
+                        Log.d(TAG, "onComplete: found location!");
+                        currentLocation = (Location) task.getResult();
+                    }else{
+                        Log.d(TAG, "onComplete: current location is null");
+                        Toast.makeText(ParkSearch.this, "unable to get current location", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }catch (SecurityException e){
+            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
+        }
+    }
     /**
      * Async task class to get json by making HTTP call
      */
@@ -210,8 +332,12 @@ public class ParkSearch extends AppCompatActivity {
                     }
                     YelpData yelper = new YelpData();
                     String term = choices[type];
+                    //testing values
                     String lat = "49.21386827563567";
                     String longi = "-122.9276924813239";
+
+                    //String lat = "" + UserLocationService.getCurrentLat();
+                    //String longi = "" + UserLocationService.getCurrentLon();
                     //private String[] choices = new String[]{"Pet Parks", "Pet Stores", "Pet Clinic", "Pet Care", "Pet Groom", "Pet Training", "Pet Food"};
                     if(term.equals("Pet Parks")) {
                         yelper.businessSearch("parks", lat, longi, "50", "Parks");
@@ -227,7 +353,11 @@ public class ParkSearch extends AppCompatActivity {
                         currentPlace.setParkName(currentBusiness.getName());
                         currentPlace.setImgUrl(currentBusiness.getImageUrl());
                         currentPlace.setType(term);
-                        currentPlace.setDistance(round2(currentBusiness.getDistance()/1000));
+                        double businessLat = currentBusiness.getCoordinates().getLatitude();
+                        double businessLon = currentBusiness.getCoordinates().getLongitude();
+
+                        double distance = GetDistanceFromLatLonInKm(businessLat, businessLon, UserLocationService.getCurrentLat(), UserLocationService.getCurrentLon());
+                        currentPlace.setDistance(round2(distance));
                         String address = addressFilter(currentBusiness);
                         if(!address.equals("")) {
                             address = address + "\n";
@@ -305,6 +435,23 @@ public class ParkSearch extends AppCompatActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
+            titleText.setText(PlacesDataService.selected + " Nearby");
+        }
+
+        public double GetDistanceFromLatLonInKm(double user1Lat, double user1Lon,  double user2Lat, double user2Lon)
+        {
+            double R = 6371; // Radius of the earth in km
+            double dLat = Deg2rad(user2Lat - user1Lat);  // deg2rad below
+            double dLon = Deg2rad(user2Lon - user1Lon);
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +  Math.cos(Deg2rad(user1Lat)) * Math.cos(Deg2rad(user2Lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            double d = R * c; // Distance in km
+            return d;
+        }
+
+        public double Deg2rad(double deg)
+        {
+            return deg * (Math.PI / 180);
         }
     }
 }

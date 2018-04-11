@@ -49,6 +49,7 @@ public class YelpData {
         params.put("longitude", longi);
         params.put("limit", limit);
         params.put("categories", category);
+        params.put("location","New Westminster");
         Call<SearchResponse> call = yelpFusionApi.getBusinessSearch(params);
         try {
             Response<SearchResponse> response = call.execute();

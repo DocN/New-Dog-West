@@ -1,12 +1,16 @@
 package com.drnserver.newdogwest;
 
+import android.*;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,6 +62,11 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LatLng locationCord;
     private Location currentLocation;
+    private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final float DEFAULT_ZOOM = 13f;
+    private Boolean mLocationPermissionsGranted = false;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -80,6 +89,7 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
         mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient,
                 LAT_LNG_BOUNDS, null);
         locationEdit.setAdapter(mPlaceAutocompleteAdapter);
+        getLocationPermission();
         getDeviceLocation();
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -107,12 +117,34 @@ public class mainSearch extends AppCompatActivity implements GoogleApiClient.OnC
         });
     }
 
+    private void getLocationPermission(){
+        Log.d(TAG, "getLocationPermission: getting location permissions");
+        String[] permissions = {android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                mLocationPermissionsGranted = true;
+            }else{
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }else{
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
     private void geoLocate(){
         Log.d(TAG, "geoLocate: geolocating");
         String searchString = locationEdit.getText().toString();
         if(searchString.equals("My Location")) {
             UserLocationService.setCurrentLat(currentLocation.getLatitude());
             UserLocationService.setCurrentLon(currentLocation.getLongitude());
+            UserLocationService.setDisplayAddress("My Location");
         }
         Geocoder geocoder = new Geocoder(mainSearch.this);
         List<Address> list = new ArrayList<>();

@@ -97,6 +97,7 @@ public class DogRadar extends AppCompatActivity implements OnMapReadyCallback {
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
+        /*
         switch (item.getItemId()) {
             case R.id.openSettings:
                 Intent myIntent = new Intent(DogRadar.this, DogRadar.class);
@@ -105,6 +106,8 @@ public class DogRadar extends AppCompatActivity implements OnMapReadyCallback {
             default:
                 return super.onOptionsItemSelected(item);
         }
+        */
+        return false;
     }
 
     private void getDeviceLocation(){
